@@ -80,7 +80,8 @@ def get_outfits():
             'id': outfit.id,
             'name': outfit.name,
             'image_url': outfit.image_url,
-            'clothes': get_outfit_clothes(outfit.id)
+            'clothes': get_outfit_clothes(outfit.id),
+            'created_at': outfit.created_at.isoformat()
         })
     
     return jsonify(result), 200
