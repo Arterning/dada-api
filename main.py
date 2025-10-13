@@ -1,8 +1,10 @@
 import os
 from datetime import datetime, timedelta, timezone
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import check_password_hash
+from werkzeug.utils import secure_filename
+import uuid
 import jwt
 from dotenv import load_dotenv
 from models import db, User, Clothing
@@ -317,6 +319,57 @@ def delete_clothing(clothing_id):
     db.session.commit()
     
     return jsonify({'message': '服装已删除'}), 200
+
+
+# Get the absolute path of the directory where the script is located
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Create upload folder if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# --- Helper Functions ---
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/api/upload', methods=['POST'])
+@token_required
+def upload_file():
+    """Upload a file and return its URL"""
+    user = request.user
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    if file and allowed_file(file.filename):
+        # Sanitize filename and make it unique
+        filename = secure_filename(file.filename)
+        unique_filename = str(uuid.uuid4()) + '_' + filename
+        
+        # Save the file
+        file.save(os.path.join(UPLOAD_FOLDER, unique_filename))
+        
+        # 确定使用的协议（HTTP或HTTPS）
+        # 首先检查X-Forwarded-Proto头，这是代理服务器传递的原始协议
+        protocol = request.headers.get('X-Forwarded-Proto', 'http')
+        
+        # 构建URL时使用正确的协议
+        host_with_protocol = protocol + '://' + request.host
+        file_url = host_with_protocol + '/uploads/' + unique_filename
+        
+        return jsonify({'url': file_url})
+    else:
+        return jsonify({'error': 'File type not allowed'}), 400
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    """Serve uploaded files"""
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 # 增加穿着次数
 @app.route('/api/clothes/<int:clothing_id>/wear', methods=['POST'])
