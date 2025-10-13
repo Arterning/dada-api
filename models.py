@@ -64,3 +64,5 @@ class Outfit(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     # 关系：一个穿搭有多个服装
     clothes = db.relationship('Clothing', secondary='outfit_clothing', backref='outfits', lazy=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
