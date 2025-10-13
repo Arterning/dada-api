@@ -36,3 +36,31 @@ class Clothing(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     # 外键：服装属于哪个用户
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class OutfitClothing(db.Model):
+    __tablename__ = 'outfit_clothing'  # 显式指定表名
+    id = db.Column(db.Integer, primary_key=True)
+    outfit_id = db.Column(db.Integer, db.ForeignKey('outfit.id'), nullable=False)
+    clothing_id = db.Column(db.Integer, db.ForeignKey('clothing.id'), nullable=False)
+    clothing_image = db.Column(db.String(255), nullable=True)
+    # 坐标
+    x = db.Column(db.Float, nullable=False)
+    y = db.Column(db.Float, nullable=False)
+    # 旋转角度
+    angle = db.Column(db.Float, nullable=False, default=0)
+    # 缩放比例
+    scale = db.Column(db.Float, nullable=False, default=1)
+    
+    # 确保一个服装在一个穿搭中只能出现一次
+    __table_args__ = (
+        db.UniqueConstraint('outfit_id', 'clothing_id', name='_outfit_clothing_uc'),
+    )
+
+# 定义穿搭模型
+class Outfit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    image_url = db.Column(db.String(255), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    # 关系：一个穿搭有多个服装
+    clothes = db.relationship('Clothing', secondary='outfit_clothing', backref='outfits', lazy=True)

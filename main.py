@@ -5,9 +5,10 @@ from flask_cors import CORS
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 import uuid
-import jwt
 from dotenv import load_dotenv
 from models import db, User, Clothing
+from auth import generate_token, verify_token, token_required
+from outfit_api import outfit_bp
 
 # 加载环境变量
 load_dotenv()
@@ -31,55 +32,7 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-# 生成JWT令牌
-def generate_token(user_id):
-    token = jwt.encode({
-        'user_id': user_id,
-        'exp': datetime.now(timezone.utc) + timedelta(days=7) # Token expires in 7 days
-    }, JWT_SECRET_KEY, algorithm="HS256")
-    return token
-
-# 验证JWT令牌
-def verify_token(token):
-    try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256'])
-        return payload['user_id']
-    except jwt.ExpiredSignatureError:
-        return None
-    except jwt.InvalidTokenError:
-        return None
-
-# 装饰器：需要登录
-def token_required(f):
-    def decorator(*args, **kwargs):
-        token = None
-        
-        # 从请求头获取令牌
-        if 'Authorization' in request.headers:
-            auth_header = request.headers['Authorization']
-            try:
-                token = auth_header.split(' ')[1]  # Bearer <token>
-            except IndexError:
-                return jsonify({'message': '令牌格式错误'}), 401
-        
-        if not token:
-            return jsonify({'message': '缺少令牌'}), 401
-        
-        user_id = verify_token(token)
-        if not user_id:
-            return jsonify({'message': '无效或过期的令牌'}), 401
-        
-        # 查找用户
-        user = User.query.get(user_id)
-        if not user:
-            return jsonify({'message': '用户不存在'}), 401
-        
-        # 将用户添加到请求上下文中
-        request.user = user
-        return f(*args, **kwargs)
-    
-    decorator.__name__ = f.__name__
-    return decorator
+# 认证相关函数已移至auth.py文件中
 
 # 用户注册
 @app.route('/api/register', methods=['POST'])
@@ -390,6 +343,9 @@ def wear_clothing(clothing_id):
 # 主函数
 def main():
     app.run(debug=True)
+
+# 注册outfit_bp Blueprint
+app.register_blueprint(outfit_bp)
 
 # 运行应用
 if __name__ == "__main__":
