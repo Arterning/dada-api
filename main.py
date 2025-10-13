@@ -318,7 +318,7 @@ def upload_file():
     else:
         return jsonify({'error': 'File type not allowed'}), 400
 
-@app.route('/uploads/<path:filename>')
+@app.route('/api/uploads/<path:filename>')
 def uploaded_file(filename):
     """Serve uploaded files"""
     return send_from_directory(UPLOAD_FOLDER, filename)
