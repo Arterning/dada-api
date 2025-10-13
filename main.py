@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.security import check_password_hash
@@ -31,18 +31,17 @@ with app.app_context():
 
 # 生成JWT令牌
 def generate_token(user_id):
-    payload = {
-        'exp': datetime.utcnow() + timedelta(seconds=JWT_EXPIRATION),
-        'iat': datetime.utcnow(),
-        'sub': user_id
-    }
-    return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
+    token = jwt.encode({
+        'user_id': user_id,
+        'exp': datetime.now(timezone.utc) + timedelta(days=7) # Token expires in 7 days
+    }, JWT_SECRET_KEY, algorithm="HS256")
+    return token
 
 # 验证JWT令牌
 def verify_token(token):
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256'])
-        return payload['sub']
+        return payload['user_id']
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:
