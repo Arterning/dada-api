@@ -312,7 +312,7 @@ def upload_file():
         
         # 构建URL时使用正确的协议
         host_with_protocol = protocol + '://' + request.host
-        file_url = host_with_protocol + '/uploads/' + unique_filename
+        file_url = host_with_protocol + '/api/uploads/' + unique_filename
         
         return jsonify({'url': file_url})
     else:
