@@ -150,8 +150,12 @@ def add_clothing():
     else:
         # 如果字段不存在，也默认为当天日期
         clothing.purchase_date = datetime.now().date()
-    if 'price' in data:
-        clothing.price = data['price']
+    if 'price' in data and data['price']:
+        try:
+            # 将字符串类型的价格转换为数值类型
+            clothing.price = float(data['price'])
+        except ValueError:
+            return jsonify({'message': '价格格式错误，应为数字'}), 400
     if 'wear_count' in data:
         clothing.wear_count = data['wear_count']
     if 'washing_method' in data:
@@ -251,7 +255,14 @@ def update_clothing(clothing_id):
         except ValueError:
             return jsonify({'message': '购买日期格式错误，应为YYYY-MM-DD'}), 400
     if 'price' in data:
-        clothing.price = data['price']
+        if data['price'] is None or data['price'] == '':
+            clothing.price = None
+        else:
+            try:
+                # 将字符串类型的价格转换为数值类型
+                clothing.price = float(data['price'])
+            except ValueError:
+                return jsonify({'message': '价格格式错误，应为数字'}), 400
     if 'wear_count' in data:
         clothing.wear_count = data['wear_count']
     if 'washing_method' in data:

@@ -28,7 +28,7 @@ class Clothing(db.Model):
     image_url = db.Column(db.String(255), nullable=True)
     category = db.Column(db.String(50), nullable=False)
     purchase_date = db.Column(db.Date, nullable=True)
-    price = db.Column(db.Float, nullable=True)
+    price = db.Column(db.Numeric(10, 2), nullable=True)
     wear_count = db.Column(db.Integer, default=0)
     washing_method = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(50), nullable=True, default='良好')
