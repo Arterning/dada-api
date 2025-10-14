@@ -139,10 +139,17 @@ def add_clothing():
     if 'image_url' in data:
         clothing.image_url = data['image_url']
     if 'purchase_date' in data:
-        try:
-            clothing.purchase_date = datetime.strptime(data['purchase_date'], '%Y-%m-%d').date()
-        except ValueError:
-            return jsonify({'message': '购买日期格式错误，应为YYYY-MM-DD'}), 400
+        if not data['purchase_date'] or data['purchase_date'].strip() == '':
+            # 如果传入空值或空字符串，默认为当天日期
+            clothing.purchase_date = datetime.now().date()
+        else:
+            try:
+                clothing.purchase_date = datetime.strptime(data['purchase_date'], '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({'message': '购买日期格式错误，应为YYYY-MM-DD'}), 400
+    else:
+        # 如果字段不存在，也默认为当天日期
+        clothing.purchase_date = datetime.now().date()
     if 'price' in data:
         clothing.price = data['price']
     if 'wear_count' in data:
