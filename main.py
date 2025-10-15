@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from models import db, User, Clothing
 from auth import generate_token, verify_token, token_required
 from outfit_api import outfit_bp
+from daily_outfit_api import daily_outfit_bp
 
 # 加载环境变量
 load_dotenv()
@@ -362,8 +363,9 @@ def wear_clothing(clothing_id):
 def main():
     app.run(debug=True)
 
-# 注册outfit_bp Blueprint
+# 注册Blueprint
 app.register_blueprint(outfit_bp)
+app.register_blueprint(daily_outfit_bp)
 
 # 运行应用
 if __name__ == "__main__":

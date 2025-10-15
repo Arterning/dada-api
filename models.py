@@ -66,3 +66,30 @@ class Outfit(db.Model):
     clothes = db.relationship('Clothing', secondary='outfit_clothing', backref='outfits', lazy=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# 定义当天穿搭和服装的关联表
+daily_outfit_clothing = db.Table('daily_outfit_clothing',
+    db.Column('daily_outfit_id', db.Integer, db.ForeignKey('daily_outfit.id'), primary_key=True),
+    db.Column('clothing_id', db.Integer, db.ForeignKey('clothing.id'), primary_key=True)
+)
+
+# 定义当天穿搭模型
+class DailyOutfit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    todays_clothes = db.Column(db.Text, nullable=True)  # 用户自己输入的当天穿的衣服描述
+    temperature = db.Column(db.String(50), nullable=True)  # 当天气温
+    weather = db.Column(db.String(50), nullable=True)  # 当天天气
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 关系：关联到具体的服装
+    clothes = db.relationship('Clothing', secondary=daily_outfit_clothing, backref='daily_outfits', lazy=True)
+    
+    # 确保一个用户在同一天只有一条穿搭记录
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'date', name='_user_date_uc'),
+    )
+
+
