@@ -122,8 +122,8 @@ def get_weather_statistics():
         # 温度范围分类
         temp_ranges = {
             '0度以下': {'min': float('-inf'), 'max': 0, 'count': 0, 'color': '#4A90E2'},
-            '0-10度': {'min': 0, 'max': 10, 'count': 0, 'color': '#7ED321'},
-            '10-20度': {'min': 10, 'max': 20, 'count': 0, 'color': '#F5A623'},
+            '0-10度': {'min': 0, 'max': 10, 'count': 0, 'color': '#90CAF9'},
+            '10-20度': {'min': 10, 'max': 20, 'count': 0, 'color': '#E3F2FD'},
             '20-30度': {'min': 20, 'max': 30, 'count': 0, 'color': '#F8E71C'},
             '30-35度': {'min': 30, 'max': 35, 'count': 0, 'color': '#FF6B6B'},
             '35度以上': {'min': 35, 'max': float('inf'), 'count': 0, 'color': '#D0021B'}
