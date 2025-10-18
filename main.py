@@ -57,8 +57,15 @@ def register():
     # 添加到数据库
     db.session.add(user)
     db.session.commit()
-    
-    return jsonify({'message': '注册成功'}), 201
+
+    # 生成 token 并返回用户信息
+    token = generate_token(user.id)
+    return jsonify({
+        'token': token,
+        'user_id': user.id,
+        'username': user.username,
+        'nickname': user.nickname
+    }), 201
 
 # 用户登录
 @app.route('/api/login', methods=['POST'])

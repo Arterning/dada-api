@@ -196,3 +196,19 @@ def update_daily_outfit(outfit_id):
         'clothing_ids': [clothing.id for clothing in outfit.clothes],
         'updated_at': outfit.updated_at.isoformat()
     }), 200
+
+# 删除当天穿搭记录
+@daily_outfit_bp.route('/api/daily-outfits/<int:outfit_id>', methods=['DELETE'])
+@token_required
+def delete_daily_outfit(outfit_id):
+    user = request.user
+    outfit = DailyOutfit.query.filter_by(id=outfit_id, user_id=user.id).first()
+
+    if not outfit:
+        return jsonify({'message': '穿搭记录不存在'}), 404
+
+    # 删除记录
+    db.session.delete(outfit)
+    db.session.commit()
+
+    return jsonify({'message': '穿搭记录已删除'}), 200
