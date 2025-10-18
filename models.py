@@ -92,4 +92,18 @@ class DailyOutfit(db.Model):
         db.UniqueConstraint('user_id', 'date', name='_user_date_uc'),
     )
 
+# 定义天气数据模型
+class Weather(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    city = db.Column(db.String(50), nullable=False, default='长沙')  # 城市
+    temperature = db.Column(db.Float, nullable=True)  # 温度
+    weather = db.Column(db.String(50), nullable=True)  # 当前天气
+    future_weather = db.Column(db.String(50), nullable=True)  # 明天天气预报
+    wind_direction = db.Column(db.String(50), nullable=True)  # 风向
+    wind_speed = db.Column(db.Float, nullable=True)  # 风速
+    sunrise = db.Column(db.String(10), nullable=True)  # 日出时间
+    sunset = db.Column(db.String(10), nullable=True)  # 日落时间
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
