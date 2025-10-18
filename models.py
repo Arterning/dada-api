@@ -1,6 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from utils import get_china_time
 
 # 初始化数据库实例
 db = SQLAlchemy()
@@ -11,7 +12,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     nickname = db.Column(db.String(80), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_china_time)
     # 关系：一个用户有多个服装
     clothes = db.relationship('Clothing', backref='owner', lazy=True)
     
@@ -32,8 +33,8 @@ class Clothing(db.Model):
     wear_count = db.Column(db.Integer, default=0)
     washing_method = db.Column(db.String(100), nullable=True)
     status = db.Column(db.String(50), nullable=True, default='良好')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_china_time)
+    updated_at = db.Column(db.DateTime, default=get_china_time, onupdate=get_china_time)
     # 外键：服装属于哪个用户
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -64,8 +65,8 @@ class Outfit(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     # 关系：一个穿搭有多个服装
     clothes = db.relationship('Clothing', secondary='outfit_clothing', backref='outfits', lazy=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_china_time)
+    updated_at = db.Column(db.DateTime, default=get_china_time, onupdate=get_china_time)
 
 # 定义当天穿搭和服装的关联表
 daily_outfit_clothing = db.Table('daily_outfit_clothing',
@@ -81,8 +82,8 @@ class DailyOutfit(db.Model):
     todays_clothes = db.Column(db.Text, nullable=True)  # 用户自己输入的当天穿的衣服描述
     temperature = db.Column(db.String(50), nullable=True)  # 当天气温
     weather = db.Column(db.String(50), nullable=True)  # 当天天气
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_china_time)
+    updated_at = db.Column(db.DateTime, default=get_china_time, onupdate=get_china_time)
     
     # 关系：关联到具体的服装
     clothes = db.relationship('Clothing', secondary=daily_outfit_clothing, backref='daily_outfits', lazy=True)
@@ -103,7 +104,7 @@ class Weather(db.Model):
     wind_speed = db.Column(db.Float, nullable=True)  # 风速
     sunrise = db.Column(db.String(10), nullable=True)  # 日出时间
     sunset = db.Column(db.String(10), nullable=True)  # 日落时间
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_china_time)
+    updated_at = db.Column(db.DateTime, default=get_china_time, onupdate=get_china_time)
 
 

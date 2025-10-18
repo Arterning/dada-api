@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify
 import requests
 from models import db, Weather
 from datetime import datetime, timedelta
+from utils import get_china_time
 
 weather_bp = Blueprint('weather', __name__)
 
@@ -53,7 +54,7 @@ def fetch_weather_data():
 def get_current_weather():
     """获取最新的天气数据"""
     # 获取最近1小时内的天气数据
-    one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+    one_hour_ago = get_china_time() - timedelta(hours=1)
     weather = Weather.query.filter(
         Weather.created_at >= one_hour_ago
     ).order_by(Weather.created_at.desc()).first()
@@ -95,9 +96,10 @@ def refresh_weather():
 def get_weather_statistics():
     """获取历史天气统计数据"""
     try:
-        # 获取今年的天气数据
-        current_year = datetime.now().year
-        start_of_year = datetime(current_year, 1, 1)
+        # 获取今年的天气数据（东八区）
+        current_time = get_china_time()
+        current_year = current_time.year
+        start_of_year = current_time.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
         # 查询今年的所有天气数据，按日期去重（每天只取最新的一条）
         from sqlalchemy import func
